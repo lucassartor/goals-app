@@ -1,48 +1,58 @@
-import {StatusBar} from 'expo-status-bar';
-import React, {useState} from 'react';
-import {StyleSheet, Text, TextInput, Button, View, ScrollView, FlatList} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, View, Button, FlatList, Text } from 'react-native';
 
-import GoalItem from "./components/GoalItem";
-import GoalInput from "./components/GoalInput";
+import GoalItem from './components/GoalItem';
+import GoalInput from './components/GoalInput';
 
 export default function App() {
-    const [goals, setGoals] = useState([]);
+    const [courseGoals, setCourseGoals] = useState([]);
+    const [isAddMode, setIsAddMode] = useState(false);
 
-    function handleAddGoal(goalTitle) {
-        setGoals(currentGoals => [
+    const addGoalHandler = goalTitle => {
+        setCourseGoals(currentGoals => [
             ...currentGoals,
-            {key: Math.random().toString(), value: goalTitle}
+            { id: Math.random().toString(), value: goalTitle }
         ]);
-    }
+        setIsAddMode(false);
+    };
 
-    function handleRemoveGoal(goalId) {
-        setGoals(currentGoals => {
-            return currentGoals.filter((goal) => goal.id !== goalId);
-        })
-    }
+    const removeGoalHandler = goalId => {
+        setCourseGoals(currentGoals => {
+            return currentGoals.filter(goal => goal.id !== goalId);
+        });
+    };
+
+    const handleCancel = () => {
+        setIsAddMode(false);
+    };
+
 
     return (
         <View style={styles.screen}>
-            <GoalInput onAddGoal={handleAddGoal}/>
-
+            <Button title="Add New Goal" onPress={() => setIsAddMode(true)} />
+            <GoalInput
+                visible={isAddMode}
+                onAddGoal={addGoalHandler}
+                onCancel={handleCancel}
+            />
             <FlatList
-                keyExtractor={(item, index) => item.key}
-                data={goals}
+                keyExtractor={(item, index) => item.id}
+                data={courseGoals}
                 renderItem={itemData => (
-                    <GoalItem id={itemData.item.id} onDelete={handleRemoveGoal} title={itemData.item.value}/>
+                    <GoalItem
+                        id={itemData.item.id}
+                        onDelete={removeGoalHandler}
+                        title={itemData.item.value}
+                    />
                 )}
             />
-
-            <StatusBar/>
+            <Text style={{padding: 50}}>Click the goal to delete it :)</Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     screen: {
-        padding: 50
-    },
-
-
+        padding: 50,
+    }
 });
-
